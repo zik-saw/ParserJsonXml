@@ -42,10 +42,10 @@ class CarRepository implements CarRepositoryInterface
      */
     protected function saveCar(CarInterface $car): bool
     {
-        $carModel = Car::create([
-            'vin' => $car->getVin(),
-            'mark' => $car->getMark(),
-        ]);
+        $carModel = new Car();
+        $carModel->setVin($car->getVin());
+        $carModel->setMark($car->getMark());
+
         $carModel->save();
         return true;
     }
@@ -55,8 +55,7 @@ class CarRepository implements CarRepositoryInterface
      * @param string $vin
      * @return bool
      */
-    public function checkVin(string $vin): bool
-    {
-        return Car::where('vin', $vin)->count() ? true : false;
+    public function checkVin(string $vin): bool {
+        return DB::table('cars')->where('vin', '=', $vin)->count() ? true : false;
     }
 }

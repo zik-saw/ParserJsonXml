@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Car
- *
- * @mixin Eloquent
  */
 class Car extends Model
 {
@@ -23,5 +21,19 @@ class Car extends Model
     protected $fillable = [
         'vin','mark'
     ];
+
+    /**
+     * @param string $vin
+     */
+    public function setVin(string $vin) : void {
+        $this->attributes['vin'] = $vin;
+    }
+
+    /**
+     * @param string $mark
+     */
+    public function setMark(string $mark) : void {
+        $this->attributes['mark'] = $mark;
+    }
 
 }
