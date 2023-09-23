@@ -1,0 +1,25 @@
+# Environment deps.
+.env
+.env.backup
+/composer.phar
+
+# IDEs
+/nbproject
+/.idea
+
+# Vendors
+/vendor
+
+# Temp dirs & trash
+/temp
+/tmp
+coverage*
+.DS_Store
+*.cache
+
+# etc.
+/storage/*.key
+/public/hot
+/public/storage
+npm-debug.log
+/node_modules
