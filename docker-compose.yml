@@ -14,10 +14,13 @@ services:
       - /etc/group:/etc/group:ro
       - .:/app:cached
       - home-dir:/home/user:cached
+      - ./xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
     ports:
       - '4001:8080/tcp'
     depends_on:
       - postgres
+    environment:
+      PHP_IDE_CONFIG: "serverName=localhost"
 
   postgres:
     image: postgres:13.1-alpine

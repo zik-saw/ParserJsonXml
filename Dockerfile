@@ -45,6 +45,7 @@ RUN set -x \
         intl \
         pdo \
         1>/dev/null \
+    && pecl install xdebug-3.1.6 \
     && docker-php-source delete \
     && apk del .build-deps \
     && rm -rf /app /home/user ${COMPOSER_HOME} /var/cache/apk/* \
@@ -66,7 +67,8 @@ RUN set -x \
     && composer --version \
     && php -v \
     && rr -h \
-    && composer dump
+    && composer dump \
+    && docker-php-ext-enable xdebug
 
 EXPOSE 8080
 
