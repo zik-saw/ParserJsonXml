@@ -42,6 +42,10 @@ class CarRepository implements CarRepositoryInterface
      */
     protected function saveCar(CarInterface $car): bool
     {
+        $carModel = new Car();
+        $carModel->setVin($car->getVin());
+        $carModel->setMark($car->getMark());
+
         $carModel = Car::create([
             'vin' => $car->getVin(),
             'mark' => $car->getMark(),
