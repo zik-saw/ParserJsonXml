@@ -7,16 +7,9 @@ use App\Exceptions\CarListException;
 class CarList implements ListInterface
 {
     /**
-     * @var array<int, CarInterface>
+     * @var array<string, CarInterface>
      */
     private array $list = [];
-
-    /**
-     * CarList constructor.
-     */
-    public function __construct()
-    {
-    }
 
     /**
      * @param CarInterface $car
@@ -24,29 +17,13 @@ class CarList implements ListInterface
      */
     public function add(CarInterface $car): void
     {
-        if (!$this->isExistVinInList($car->getVin())) {
+        if(isset($this->list[$car->getVin()])) {
             throw new CarListException("`vin` {$car->getVin()} not unique in parsed string.");
         }
-        $this->list[] = $car;
+        $this->list[$car->getVin()] = $car;
     }
-
     /**
-     * @param string $vin
-     * @return bool
-     */
-    protected function isExistVinInList(string $vin) : bool
-    {
-        /** @var CarInterface $car */
-        foreach ($this->all() as $car) {
-            if ($car->getVin() === $vin) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @return array<int, CarInterface>
+     * @return array<string, CarInterface>
      */
     public function all(): array
     {

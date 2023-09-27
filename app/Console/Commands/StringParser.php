@@ -23,15 +23,6 @@ class StringParser extends Command
      */
     protected $description = 'Command parse JSON and XML string';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
     /**
      * Команда для считывания пар vin и mark из строки формата json или xml, и сохранение этих пар в таблицу cars
@@ -47,7 +38,7 @@ class StringParser extends Command
                 throw new Exception("Cannot parse an empty string.");
             }
             $parser = $parserFactory->createCarParser($rawData);
-            $carList = $parser->parse();
+            $carList = $parser->parse($rawData);
             $carRepository->saveCarList($carList);
             $this->info('Parse string successful!');
             return 0;

@@ -5,29 +5,42 @@ namespace App\Console\Parsers\Car;
 use App\Console\DomainModel\CarInterface;
 use App\Console\DomainModel\ListInterface;
 use App\Exceptions\CarParserException;
-use App\Repositories\CarRepository;
-use App\Repositories\CarRepositoryInterface;
 use App\Models\Car as CarModel;
 use App\Console\DomainModel\Car as CarDomain;
+use Illuminate\Support\Facades\Validator;
 
-abstract class CarParser implements CarParserInterface
+abstract class CarParser
 {
     public const CAR_FIELD_VIN = 'vin';
     public const CAR_FIELD_MARK = 'mark';
     public const LIST_CAR_FIELD = 'cars';
 
-    protected string $str = "";
-    protected CarRepositoryInterface $carRepository;
-
 
     /**
-     * CarParser constructor.
-     * @param string $str
+     * @return array<string, array<int,string>>
      */
-    public function __construct(string $str)
-    {
-        $this->str = $str;
-        $this->carRepository = new CarRepository();
+    protected function getValidationRules(): array {
+        return [
+            self::CAR_FIELD_MARK => [
+                'required', 'string',
+            ],
+            self::CAR_FIELD_VIN => [
+              'required', 'unique:App\Models\Car', 'min:16', 'max:16'
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    protected function getValidationMessages(): array {
+        return [
+            'required' => "Обязательное поле для парсинга",
+            'string' => "Поле должено быть строкой",
+            'unique' => "Поле с таким значением уже создано",
+            'min' => "Кол-во символово должно быть 16",
+            "max" => "Кол-во символово должно быть 16",
+        ];
     }
 
     /**
@@ -41,21 +54,15 @@ abstract class CarParser implements CarParserInterface
         if (count($data) > 2) {
             throw new CarParserException('Incorrect string format - in filed `car` count fields must be 2');
         }
-        if (empty($data[self::CAR_FIELD_MARK])) {
-            throw new CarParserException("Incorrect string format - in car missing '".self::CAR_FIELD_MARK."' key");
-        }
-        if (empty($data[self::CAR_FIELD_VIN])) {
-            throw new CarParserException("Incorrect string format - in car missing  '".self::CAR_FIELD_VIN."' key");
-        }
 
-        if (CarModel::VIM_FIELD_VALUE_LENGTH !== strlen($data[self::CAR_FIELD_VIN])) {
-            throw new CarParserException("Incorrect length ".self::CAR_FIELD_VIN);
+        $validator = Validator::make($data, $this->getValidationRules(), $this->getValidationMessages());
+        if($validator->fails()) {
+            $errorMessage = "";
+            foreach ($validator->errors()->getMessages() as $field => $messages) {
+                $errorMessage .= "{$field} - ".implode(", ", $messages)." ";
+            }
+            throw new CarParserException($errorMessage." Исходные данные - ".json_encode($data, true));
         }
-
-        if ($this->carRepository->checkVin($data[self::CAR_FIELD_VIN])) {
-            throw new CarParserException('Same vin is exist in DB - '.$data[self::CAR_FIELD_VIN]);
-        }
-
         return true;
     }
 
@@ -74,5 +81,5 @@ abstract class CarParser implements CarParserInterface
         );
     }
 
-    abstract public function parse(): ListInterface;
+    abstract public function parse(string $string): ListInterface;
 }

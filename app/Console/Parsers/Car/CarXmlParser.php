@@ -14,13 +14,14 @@ class CarXmlParser extends CarParser
 
     /**
      * парсинг строки формата xml и возвращает коллекцию пар vin и mark
+     * @param string $string
      * @return ListInterface
-     * @throws CarXmlParserException
      * @throws CarParserException
+     * @throws CarXmlParserException
      */
-    public function parse(): ListInterface
+    public function parse(string $string): ListInterface
     {
-        $xml = @simplexml_load_string($this->str, \SimpleXMLElement::class, LIBXML_NOCDATA);
+        $xml = @simplexml_load_string($string, \SimpleXMLElement::class, LIBXML_NOCDATA);
 
         if (!$xml) {
             throw new CarXmlParserException("Incorrect XML string");

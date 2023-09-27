@@ -10,7 +10,7 @@ interface ListInterface
     public function add(Car $car): void;
 
     /**
-     * @return array<int, CarInterface>
+     * @return array<string, CarInterface>
      */
     public function all(): array;
 }

@@ -25,7 +25,7 @@ class StringParserCommandTest extends TestCase
                 'isSuccessful' => false
             ],
             'Передана корректная json строка' => [
-                'string' => '{"data":{"cars":[{"vin":"12345678901234567","mark":"random_mark"},{"vin":"12345678906234567","mark":"random_mark"}]}}',
+                'string' => '{"data":{"cars":[{"vin":"new_vin_1_123456","mark":"random_mark"},{"vin":"new_vin_2_123456","mark":"random_mark"}]}}',
                 'isSuccessful' => true,
             ],
             'Передана некорректная json строка' => [
@@ -33,7 +33,7 @@ class StringParserCommandTest extends TestCase
                 'isSuccessful' => false,
             ],
             'Передана корректная xml строка' => [
-                'string' => '<?xml version=\"1.0\" encoding=\"UTF-8\"?><data><cars><car><vin>23f23234234cssdf3</vin><mark>random_mark</mark></car></cars></data>',
+                'string' => '<?xml version=\"1.0\" encoding=\"UTF-8\"?><data><cars><car><vin>new_vin_1_123456</vin><mark>random_mark</mark></car></cars></data>',
                 'isSuccessful' => true,
             ],
             'Передана некорректная xml строка' => [

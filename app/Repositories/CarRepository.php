@@ -6,11 +6,24 @@ use App\Console\DomainModel\CarInterface;
 use App\Console\DomainModel\ListInterface;
 use App\Exceptions\CarRepositoryException;
 use App\Models\Car;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\DB;
 
 class CarRepository implements CarRepositoryInterface
 {
+    /**
+     * @var ConnectionInterface
+     */
+    protected ConnectionInterface $connection;
+
+    /**
+     * CarRepository constructor.
+     * @param ConnectionInterface $connection
+     */
+    public function __construct(ConnectionInterface $connection) {
+        $this->connection = $connection;
+    }
+
     /**
      * Сохранение коллекции пар vin и mark
      * @param ListInterface $carList
@@ -19,24 +32,21 @@ class CarRepository implements CarRepositoryInterface
      */
     public function saveCarList(ListInterface $carList): bool
     {
-        $connection = DB::connection();
-        try {
-            $connection->beginTransaction();
-
-            foreach ($carList->all() as $car) {
+        $this->connection->beginTransaction();
+        foreach ($carList->all() as $car) {
+            try {
                 $this->saveCar($car);
+            }  catch (QueryException $e) {
+                $this->connection->rollBack();
+                throw new CarRepositoryException("In save collection process throw error with code - ".$e->getCode());
             }
-
-            $connection->commit();
-            return true;
-        } catch (QueryException $e) {
-            $connection->rollBack();
-            throw new CarRepositoryException("При сохранении коллекции произоошла ошибка с кодом - ".$e->getCode());
         }
+        $this->connection->commit();
+        return true;
     }
 
     /**
-     * Сохраняет пару vin и marl
+     * Сохраняет пару vin и mark
      * @param CarInterface $car
      * @return bool
      */
@@ -45,22 +55,7 @@ class CarRepository implements CarRepositoryInterface
         $carModel = new Car();
         $carModel->setVin($car->getVin());
         $carModel->setMark($car->getMark());
-
-        $carModel = Car::create([
-            'vin' => $car->getVin(),
-            'mark' => $car->getMark(),
-        ]);
-        $carModel->save();
-        return true;
+        return $carModel->save();
     }
 
-    /**
-     * Проверяет, что vin нет в таблице
-     * @param string $vin
-     * @return bool
-     */
-    public function checkVin(string $vin): bool
-    {
-        return Car::where('vin', $vin)->count() ? true : false;
-    }
 }

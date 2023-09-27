@@ -14,13 +14,14 @@ class CarJsonParser extends CarParser
 
     /**
      * парсинг строки формата json и возвращает коллекцию пар vin и mark
+     * @param string $string
      * @return ListInterface
      * @throws CarJsonParserException
      * @throws CarParserException
      */
-    public function parse(): ListInterface
+    public function parse(string $string): ListInterface
     {
-        $jsonArray = json_decode($this->str, true);
+        $jsonArray = json_decode($string, true);
         if (!is_array($jsonArray)) {
             throw new CarJsonParserException('Wrong json string');
         }

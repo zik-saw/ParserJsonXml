@@ -7,47 +7,12 @@ use App\Exceptions\CarRepositoryException;
 use App\Models\Car;
 use App\Repositories\CarRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class CarRepositoryTest extends TestCase
 {
     use RefreshDatabase;
-
-    /**
-     * @return array
-     */
-    public function dataCheckVin(): array
-    {
-        return [
-            'vin существует в БД' => [
-                'newVin' => "23f23234234cssdfn",
-                'vinInDB' => '23f23234234cssdf3',
-                'expectedValue' => false,
-            ],
-            'vin не существует в БД' => [
-                'newVin' => "23f23234234cssdfn",
-                'vinInDB' => '23f23234234cssdfn',
-                'expectedValue' => true,
-            ]
-        ];
-    }
-
-    /**
-     * @dataProvider dataCheckVin
-     * @param string $newVin
-     * @param string $vinInDB
-     * @param bool $expectedValue
-     */
-    public function testCheckVin(string $newVin, string $vinInDB, bool $expectedValue)
-    {
-        $cars =  Car::factory()->create([
-          'vin' => $vinInDB
-        ]);
-
-        $repository = new CarRepository();
-        $this->assertEquals($expectedValue, $repository->checkVin($newVin));
-    }
-
 
     /**
      * @return array
@@ -173,7 +138,7 @@ class CarRepositoryTest extends TestCase
         $mock->expects($this->once())->method('all')->willReturn($cars);
 
 
-        $carRepository = new CarRepository();
+        $carRepository = new CarRepository(DB::connection());
         try {
             $carRepository->saveCarList($mock);
             foreach ($carInfoList as $carInfo) {

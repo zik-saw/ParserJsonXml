@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Exceptions\CarParserException;
+use App\Models\Car;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Console\Parsers\Car\CarParser;
 use Mockery;
@@ -11,6 +13,7 @@ use App\Repositories\CarRepository;
 
 class CarParserTest extends TestCase
 {
+    use RefreshDatabase;
     /**
      * @return array
      */
@@ -30,33 +33,33 @@ class CarParserTest extends TestCase
                     'mark' => 'mark',
                     'fake1' => 'fake1',
                 ],
-                "exceptionMessage" => "Incorrect string format - in car missing  '".CarParser::CAR_FIELD_VIN."' key",
+                "exceptionMessage" => "vin - Обязательное поле для парсинга  Исходные данные - {\"mark\":\"mark\",\"fake1\":\"fake1\"}",
             ],
             'В массиве отсуствует ключ '.CarParser::CAR_FIELD_MARK => [
                 'carInfo' => [
-                    'vin' => 'vin',
+                    'vin' => 'dsds324scas333bs',
                     'fake1' => 'fake1',
                 ],
-                "exceptionMessage" => "Incorrect string format - in car missing '".CarParser::CAR_FIELD_MARK."' key",
+                "exceptionMessage" => "mark - Обязательное поле для парсинга  Исходные данные - {\"vin\":\"dsds324scas333bs\",\"fake1\":\"fake1\"}",
             ],
             'Некорректное кол-во символов у поля '.CarParser::CAR_FIELD_VIN => [
                 'carInfo' => [
-                    'vin' => 'vin',
+                    'vin' => 'dsds324sdas33',
                     'mark' => 'mark',
                 ],
-                "exceptionMessage" => "Incorrect length ".CarParser::CAR_FIELD_VIN,
+                "exceptionMessage" => "vin - Кол-во символово должно быть 16  Исходные данные - {\"vin\":\"dsds324sdas33\",\"mark\":\"mark\"}",
             ],
-            'Проверка, что бросается ошибка, если метод проверки существовавния vin вернул false' => [
+            'Возвращаетсся предупреждение, что такой vin уже есть в БД' => [
                 'carInfo' => [
-                    'vin' => 'correct_vin_12345',
+                    'vin' => 'existed_vin_1918',
                     'mark' => 'mark',
                 ],
-                "exceptionMessage" => 'Same vin is exist in DB - correct_vin_12345',
+                "exceptionMessage" => 'vin - Поле с таким значением уже создано  Исходные данные - {"vin":"existed_vin_1918","mark":"mark"}',
                 'checkVinExpected' => true,
             ],
-            'Проверка, что метод успешно прошел все проверки и вернул true' => [
+            'Валидация прошла успешно' => [
                 'carInfo' => [
-                    'vin' => 'correct_vin_12345',
+                    'vin' => 'correct_vin_1234',
                     'mark' => 'mark',
                 ],
                 "exceptionMessage" => '',
@@ -74,18 +77,18 @@ class CarParserTest extends TestCase
      * @param bool $checkVinExpected
      * @throws CarParserException
      */
-    public function testValidateCarFields($carInfo = [], $exceptionMessage = "", $checkVinExpected = false)
+    public function testValidateCarFields($carInfo = [], $exceptionMessage = "" )
     {
+        Car::factory()->create([
+            'vin' => 'existed_vin_1918'
+        ]);
+
         if ($exceptionMessage) {
             $this->expectException(CarParserException::class);
             $this->expectErrorMessage($exceptionMessage);
         }
 
-        $repositoryMock = Mockery::mock('overload:'.CarRepository::class, CarRepositoryInterface::class);
-        $repositoryMock->shouldReceive('checkVin')->andReturn($checkVinExpected);
-
-
-        $stub = $this->getMockForAbstractClass(CarParser::class, ["stubString"]);
+        $stub = $this->getMockForAbstractClass(CarParser::class);
         $this->assertTrue($stub->validateCarFields($carInfo));
     }
 }

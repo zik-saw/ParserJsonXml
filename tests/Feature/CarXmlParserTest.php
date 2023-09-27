@@ -88,10 +88,10 @@ class CarXmlParserTest extends TestCase
             $this->expectErrorMessage($expectedException['messageError']);
         }
 
-        $mock = $this->getMockBuilder(CarXmlParser::class)->setConstructorArgs([$xmString])->onlyMethods(['validateCarFields'])->getMock();
-        $mock->expects($this->any())->method('validateCarFields')->willReturn(true);
+        $mock = $this->getMockBuilder(CarXmlParser::class)->onlyMethods(['validateCarFields'])->getMock();
+        $mock->expects($this->any())->method('validateCarFields');
 
-        $collection = $mock->parse();
+        $collection = $mock->parse($xmString);
 
         $this->assertEquals(count($collection->all()), $collectionLength);
     }

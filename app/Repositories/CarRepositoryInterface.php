@@ -9,5 +9,4 @@ interface CarRepositoryInterface
 {
     public function saveCarList(ListInterface $list): bool;
 
-    public function checkVin(string $vin): bool;
 }

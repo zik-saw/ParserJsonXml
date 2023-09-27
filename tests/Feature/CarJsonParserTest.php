@@ -88,10 +88,10 @@ class CarJsonParserTest extends TestCase
             $this->expectErrorMessage($expectedException['messageError']);
         }
 
-        $mock = $this->getMockBuilder(CarJsonParser::class)->setConstructorArgs([$jsonString])->onlyMethods(['validateCarFields'])->getMock();
-        $mock->expects($this->any())->method('validateCarFields')->willReturn(true);
+        $mock = $this->getMockBuilder(CarJsonParser::class)->onlyMethods(['validateCarFields'])->getMock();
+        $mock->expects($this->any())->method('validateCarFields');
 
-        $collection = $mock->parse();
+        $collection = $mock->parse($jsonString);
 
         $this->assertEquals(count($collection->all()), $collectionLength);
     }
